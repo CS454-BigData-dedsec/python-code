@@ -1,4 +1,3 @@
-
 import urllib2
 import json
 import re
@@ -11,12 +10,12 @@ def main():
     c = string.count('matchId')
 
     #theChamps = []
-
+    print("===Game Data Sample===")
     for i in range(0,c):
-        print gameList["matches"][i]["matchId"] #the u' annotation is unicode.  you can ignore it
-        print gameList["matches"][i]["participants"][0]["championId"] #the u' annotation is unicode.  you can ignore it
-        print gameList["matches"][i]["participants"][0]["stats"]["winner"] #the u' annotation is unicode.  you can ignore it
-
+        print "Match ID = ", gameList["matches"][i]["matchId"] #the u' annotation is unicode.  you can ignore it
+        print "Champion ID = ", gameList["matches"][i]["participants"][0]["championId"] #the u' annotation is unicode.  you can ignore it
+        print "Win = ", gameList["matches"][i]["participants"][0]["stats"]["winner"], "\n" #the u' annotation is unicode.  you can ignore it
+        
         #print gameList["matches"][i]["ParticipantStats"][0]["winner"]
         #heChapms.append(gameList["matches"][i]["ParticipantStats"][0]["winner"])
 
