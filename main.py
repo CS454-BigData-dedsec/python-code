@@ -1,8 +1,6 @@
 '''
 http://www.themeta.gg
 
-This module makes an API call to a game and stores a json object to a textfile.
-The JSON object is statistics on a game's relevant meta information.
 
 '''
 import urllib2
