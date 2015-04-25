@@ -1,4 +1,4 @@
-# python-code
-#this is where we should upload our code for our project
-#i dont know how to use github so im learning as i go
+theMeta.gg
 
+We call game API's to calculate the current game meta for online Multiplayer games.
+Focus is currently on League of Legends.  Can expand to other games in the future.
