@@ -68,6 +68,17 @@ class LeagueOfLegends():
         print('spell: ' + str(self.spell))
         print('-------------------------------------------')
 
+    def store(self):
+        f = open('riot-featured-log.txt', 'a')
+        f.write('riotGameId ' + str(self.riotGameId) + '\n')
+        f.write('riotPlatformId ' + str(self.riotPlatformId) + '\n')
+        f.write('riotMapId ' + str(self.riotMapId) + '\n')
+        f.write('riotGameQueueConfigId ' + str(self.riotGameQueueConfigId) + '\n')
+        f.write('played: ' + str(self.played) + '\n')
+        f.write('banned: ' + str(self.banned) + '\n')
+        f.write('spell: ' + str(self.spell) + '\n')
+        f.write('-------------------------------------------' + '\n')
+        f.flush()
 
 def main():
     r = urllib2.urlopen('https://na.api.pvp.net/observer-mode/rest/' +

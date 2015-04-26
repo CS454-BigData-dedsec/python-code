@@ -1,0 +1,40 @@
+riotGameId 1805056303
+riotPlatformId NA1
+riotMapId 11
+riotGameQueueConfigId 4
+played: [150, 115, 429, 107, 40, 54, 15, 432, 105, 62]
+banned: [76, 79, 120, 7, 55, 113]
+spell: [12, 4, 4, 7, 4, 7, 11, 4, 3, 4, 11, 12, 7, 4, 4, 3, 4, 14, 11, 4]
+-------------------------------------------
+riotGameId 1805048271
+riotPlatformId NA1
+riotMapId 11
+riotGameQueueConfigId 4
+played: [222, 28, 7, 412, 85, 120, 121, 55, 236, 40]
+banned: [107, 39, 80, 103, 79, 113]
+spell: [4, 7, 14, 11, 14, 4, 3, 4, 12, 4, 12, 14, 11, 4, 14, 4, 7, 4, 3, 4]
+-------------------------------------------
+riotGameId 1805049034
+riotPlatformId NA1
+riotMapId 11
+riotGameQueueConfigId 4
+played: [92, 421, 8, 143, 236, 40, 113, 222, 54, 38]
+banned: [39, 6, 20, 79, 76, 120]
+spell: [4, 12, 11, 4, 14, 4, 4, 3, 7, 4, 3, 4, 11, 4, 7, 4, 12, 4, 14, 4]
+-------------------------------------------
+riotGameId 1805056609
+riotPlatformId NA1
+riotMapId 11
+riotGameQueueConfigId 4
+played: [85, 131, 63, 20, 236, 222, 40, 102, 8, 64]
+banned: [39, 113, 120, 79, 7, 57]
+spell: [14, 4, 12, 4, 4, 3, 4, 11, 4, 7, 4, 7, 4, 3, 12, 11, 6, 4, 11, 4]
+-------------------------------------------
+riotGameId 1805079904
+riotPlatformId NA1
+riotMapId 12
+riotGameQueueConfigId 65
+played: [266, 21, 91, 54, 117, 36, 15, 121, 16, 32]
+banned: []
+spell: [6, 4, 4, 7, 14, 4, 14, 4, 4, 3, 7, 6, 4, 7, 14, 4, 7, 4, 4, 14]
+-------------------------------------------
