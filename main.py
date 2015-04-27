@@ -19,8 +19,8 @@ class LeagueOfLegends():
     riotPlatformId: string (ex. NA1)
     riotMapId:  int (11 is summoner's rift)
     riotGameQueueConfigId: int (4 is ranked solo queue)
-    riotParticipants: list of dict{???}
-    riotBannedChampions:  list of dict{???}
+    riotParticipants: list of dictionary{???}
+    riotBannedChampions:  list of dictary{???}
     banned:  list of championIds
     played:  list of championIds
     spell:  list of spellIds
@@ -70,14 +70,14 @@ class LeagueOfLegends():
 
     def store(self):
         f = open('riot-featured-log.txt', 'a')
-        f.write('riotGameId ' + str(self.riotGameId) + '\n')
-        f.write('riotPlatformId ' + str(self.riotPlatformId) + '\n')
-        f.write('riotMapId ' + str(self.riotMapId) + '\n')
-        f.write('riotGameQueueConfigId ' + str(self.riotGameQueueConfigId) + '\n')
-        f.write('played: ' + str(self.played) + '\n')
-        f.write('banned: ' + str(self.banned) + '\n')
-        f.write('spell: ' + str(self.spell) + '\n')
-        f.write('-------------------------------------------' + '\n')
+        f.write('riotGameId:' + str(self.riotGameId) + '\n')
+        f.write('riotPlatformId:' + str(self.riotPlatformId) + '\n')
+        f.write('riotMapId:' + str(self.riotMapId) + '\n')
+        f.write('riotGameQueueConfigId:' + str(self.riotGameQueueConfigId) + '\n')
+        f.write('played:' + str(self.played) + '\n')
+        f.write('banned:' + str(self.banned) + '\n')
+        f.write('spell:' + str(self.spell) + '\n')
+        f.write('-' + '\n')
         f.flush()
 
 def main():

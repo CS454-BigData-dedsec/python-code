@@ -1,0 +1,69 @@
+variables needed from match-v2.2 query
+
+MatchDetail
+-----------
+matchDuration
+matchId
+participants  	List[Participant]
+queueType
+region
+season
+teams			List[Team]
+
+Participant
+-----------
+championId
+masteries		List[Mastery]
+runes			List[Rune]
+spell1Id
+spell2Id
+stats 			ParticipantStats
+timeline  		ParticipantTimeline 
+
+Team
+-----------
+bans			List[BannedChampion]
+baronKills
+dragonKills
+
+Mastery
+----------
+masteryId
+rank
+
+ParticipantStats
+----------------
+assists
+deaths
+goldEarned
+item0
+item1
+item2
+item3
+item4
+item5
+item6
+kills
+largestKillingSpree
+largestMultiKill
+totalDamageDealt
+totalDamageDealtTochampions
+totalDamageTkane
+totalHeal
+totalTimeCrowdControlDealt
+totalUnitsHealed
+winner
+
+ParticipantTimeline
+-------------------
+lane
+role
+
+Rune
+------------------
+rank
+runeId
+
+BannedChampion
+--------------
+championId
