@@ -67,3 +67,9 @@ runeId
 BannedChampion
 --------------
 championId
+
+/api/lol/{region}/v2.2/match/{matchId}
+this one will help us search the whole match not just one person in that match lol
+ps..... should be the same data as the one on the top. only difference this uses match id not user id..
+
+
