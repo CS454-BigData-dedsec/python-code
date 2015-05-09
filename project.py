@@ -46,7 +46,7 @@ def userFromMatches(matches):
             print "info on match " + str(matches[g]) + ":: participants", c
             for i in range(0,c):
 
-                print i , " Player = ", gameList["participants"][i]["championId"] , "::  Win = ", gameList["participants"][0]["stats"]["winner"], "\n" 
+                print i , " Player = ", gameList["participants"][i]["championId"] , "::  Win = ", gameList["participants"][i]["stats"]["winner"], "\n" 
 
              
     
