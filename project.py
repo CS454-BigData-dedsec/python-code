@@ -1,28 +1,88 @@
-
+# you see that it first displays one user but then displays all the fights he has faught and goes
+# back and uses those battle id's and uses thos to look up all the users in that one battle
+import pymongo
 import urllib2
 import json
 import re
+import time
 
 def main():
-    response = urllib2.urlopen('https://na.api.pvp.net/api/lol/na/v2.2/matchhistory/35241849?&beginIndex=90&endIndex=100&api_key=8fc63904-e5cd-4b76-a555-4729dac804b4')
-    string = response.read()        #this is a string
-    gameList = json.loads(string)   #this is a json object
-   
-    c = string.count('matchId')
-    got = urllib2.urlopen('https://global.api.pvp.net/api/lol/static-data/na/v1.2/champion?api_key=8fc63904-e5cd-4b76-a555-4729dac804b4')
-    characters = got.read()
-    champion = json.loads(characters)   #this is a json object
+    #from pymongo import MongoClient
+    #client = MongoClient()
+    #db = client.test_database
 
-    for name in champion["data"].keys():
-        print champion["data"][name]["name"], "=", champion["data"][name]["id"]
-
-
+    #print db
     
-    print("===Game Data Sample===") 
-    for i in range(0,c):
-        print "Match ID = ", gameList["matches"][i]["matchId"] #the u' annotation is unicode.  you can ignore it
-        print "Champion ID = ", gameList["matches"][i]["participants"][0]["championId"] #the u' annotation is unicode.  you can ignore it
-        print "Win = ", gameList["matches"][i]["participants"][0]["stats"]["winner"], "\n" #the u' annotation is unicode.  you can ignore it
+    starting = '35241849'
+
+    newMatches = matches(starting)
+
+    print "this is the list of matches for this guy" + starting
+    print newMatches 
+
+    userFromMatches(newMatches)
+
+
+def userFromMatches(matches):
+    list = []
+    trigger = True
+    for g in range(0, len(matches)):
+        if(trigger):
+            try: 
+                point = "https://na.api.pvp.net/api/lol/na/v2.2/match/"+str(matches[g])+"?api_key=8fc63904-e5cd-4b76-a555-4729dac804b4"
+                response = urllib2.urlopen(point)
+                string = response.read()
+            except urllib2.HTTPError as err:
+                print (err.code)
+                if err.code ==400:
+                    time.sleep(20)
+                    point = "https://na.api.pvp.net/api/lol/na/v2.2/match/"+str(matches[g])+"?api_key=8fc63904-e5cd-4b76-a555-4729dac804b4"
+                    response = urllib2.urlopen(point)
+                    string = response.read()
+
+        
+            gameList = json.loads(string) 
+            c = string.count('totalDamageDealtToChampions')
+            print "info on match " + str(matches[g]) + ":: participants", c
+            for i in range(0,c):
+
+                print i , " Player = ", gameList["participants"][i]["championId"] , "::  Win = ", gameList["participants"][0]["stats"]["winner"], "\n" 
+
+             
+    
+    return list    
+
+
+def matches(user): #looks up by user for matches
+    list = []
+    trigger = True
+    for g in range(0, 100):
+        if(trigger):
+            try: 
+                point = "https://na.api.pvp.net/api/lol/na/v2.2/matchhistory/"+str(user)+"?&beginIndex="+str(g*15)+"&endIndex=100&api_key=8fc63904-e5cd-4b76-a555-4729dac804b4"
+                response = urllib2.urlopen(point)
+                string = response.read()
+            except urllib2.HTTPError as err:
+                print (err.code)
+                if err.code ==400:
+                    time.sleep(20)
+                    point = "https://na.api.pvp.net/api/lol/na/v2.2/matchhistory/"+str(user)+"?&beginIndex="+str(g*15)+"&endIndex=100&api_key=8fc63904-e5cd-4b76-a555-4729dac804b4"
+                    response = urllib2.urlopen(point)
+                    string = response.read()
+
+        
+            gameList = json.loads(string) 
+            c = string.count('matchId')
+            if (c<15):
+                trigger = False
+            print("===Game Data Sample===",g) 
+            for i in range(0,c):
+                print "Match ID = ", gameList["matches"][i]["matchId"] 
+                print "Champion ID = ", gameList["matches"][i]["participants"][0]["championId"] 
+                print "Win = ", gameList["matches"][i]["participants"][0]["stats"]["winner"], "\n" 
+                list.append(gameList["matches"][i]["matchId"])
+    
+    return list
 
 
 
