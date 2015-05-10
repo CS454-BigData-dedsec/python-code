@@ -1,4 +1,4 @@
-@@ -1,32 +1,104 @@
+
 '''
 Created on Apr 23, 2015
 
@@ -123,5 +123,4 @@ def matches(user): #looks up by user for matches
 
 
 if __name__ == '__main__':
-    main()
     main()
