@@ -59,7 +59,11 @@ def userFromMatches(matches,db):
                     point = "https://na.api.pvp.net/api/lol/na/v2.2/match/"+str(matches[g])+"?api_key=8fc63904-e5cd-4b76-a555-4729dac804b4"
                     response = urllib2.urlopen(point)
                     string = response.read()
-        
+                if err.code == 429:
+                    time.sleep(11)
+                    point = "https://na.api.pvp.net/api/lol/na/v2.2/match/"+str(matches[g])+"?api_key=8fc63904-e5cd-4b76-a555-4729dac804b4"
+                    response = urllib2.urlopen(point)
+                    string = response.read()
         
             gameList = json.loads(string)
             
