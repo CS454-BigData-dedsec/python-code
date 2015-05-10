@@ -84,6 +84,8 @@ def userFromMatches(matches,db):
                 #--it should show posts in the list
                 #db.posts.find()      --this will show you every document you have in posts
                 
+                #we can look up specific queries like this:
+                #db.posts.find({"Win": true})    --to find where the player won
 
 
                     return list
