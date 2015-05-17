@@ -88,7 +88,6 @@ def userFromMatches(matches,db):
                 #db.posts.find({"Win": true})    --to find where the player won
 
 
-                    return list
 
 
 def matches(user): #looks up by user for matches
