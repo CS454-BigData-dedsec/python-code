@@ -1,16 +1,3 @@
-
-'''
-Created on Apr 23, 2015
-
-@author: Deadsec
-
-http://www.themeta.gg
-
-This module makes an API call to a game and stores a json object to a textfile.
-The JSON object is statistics on a game's relevant meta information.
-
-
-'''
 # you see that it first displays one user but then displays all the fights he has fought and goes
 # back and uses those battle id's and uses those to look up all the users in that one battle
 import pymongo
@@ -18,8 +5,6 @@ import urllib2
 import json
 import re
 import time
-from pymongo import MongoClient
-
 
 def main():
     response = urllib2.urlopen('https://na.api.pvp.net/observer-mode/rest/' +
@@ -62,7 +47,11 @@ def userFromMatches(matches,db):
                     point = "https://na.api.pvp.net/api/lol/na/v2.2/match/"+str(matches[g])+"?api_key=8fc63904-e5cd-4b76-a555-4729dac804b4"
                     response = urllib2.urlopen(point)
                     string = response.read()
-        
+                if err.code == 429:
+                    time.sleep(11)
+                    point = "https://na.api.pvp.net/api/lol/na/v2.2/match/"+str(matches[g])+"?api_key=8fc63904-e5cd-4b76-a555-4729dac804b4"
+                    response = urllib2.urlopen(point)
+                    string = response.read()
         
             gameList = json.loads(string)
             
@@ -110,7 +99,7 @@ def matches(user): #looks up by user for matches
                     point = "https://na.api.pvp.net/api/lol/na/v2.2/matchhistory/"+str(user)+"?&beginIndex="+str(g*15)+"&endIndex=100&api_key=8fc63904-e5cd-4b76-a555-4729dac804b4"
                     response = urllib2.urlopen(point)
                     string = response.read()
-        
+                
         
             gameList = json.loads(string)
             c = string.count('matchId')
@@ -125,16 +114,7 @@ def matches(user): #looks up by user for matches
 
     return list
 
-def matchById(matchId):
-    webhook = ("https://na.api.pvp.net/api/lol/na/v2.2/match/" + str(matchId) + 
-                "?api_key=e63ca19d-7ce7-4fc7-9b85-35759aab7ec6")
-    response = urllib2.urlopen(webhook)
-    json_response = json.loads(response.read())
-    client = MongoClient()
-    db = client.test_database
-    print(json_response)
-
 
 
 if __name__ == '__main__':
-    matchById(1721458584)
+    main()
