@@ -80,7 +80,7 @@ class LeagueOfLegends():
         f.write('-' + '\n')
         f.flush()
 
-def main():
+def matchData():
     r = urllib2.urlopen('https://na.api.pvp.net/observer-mode/rest/' +
                 'featured?api_key=e63ca19d-7ce7-4fc7-9b85-35759aab7ec6')
     rr = json.loads(r.read()) #dict
@@ -91,4 +91,4 @@ def main():
         l.store()
 
 if __name__ == '__main__':
-    main()
+    matchData(1721458584)
