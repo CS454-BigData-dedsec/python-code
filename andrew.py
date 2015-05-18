@@ -4,6 +4,8 @@ If it doesn't exist, continue.
 
 Queries "Match" Riot API using specified "matchId" parameter.
 
+Inserts parsed "match" into "matchData" collection
+
 '''
 
 import pymongo
