@@ -9,6 +9,7 @@ http://www.themeta.gg
 This module makes an API call to a game and stores a json object to a textfile.
 The JSON object is statistics on a game's relevant meta information.
 
+
 '''
 # you see that it first displays one user but then displays all the fights he has fought and goes
 # back and uses those battle id's and uses those to look up all the users in that one battle
@@ -17,6 +18,8 @@ import urllib2
 import json
 import re
 import time
+from pymongo import MongoClient
+
 
 def main():
     response = urllib2.urlopen('https://na.api.pvp.net/observer-mode/rest/' +
@@ -88,6 +91,7 @@ def userFromMatches(matches,db):
                 #db.posts.find({"Win": true})    --to find where the player won
 
 
+    return list
 
 
 def matches(user): #looks up by user for matches
@@ -119,9 +123,18 @@ def matches(user): #looks up by user for matches
                 print( "Win = ", gameList["matches"][i]["participants"][0]["stats"]["winner"], "\n" )
                 list.append(gameList["matches"][i]["matchId"])
 
-                    return list
+    return list
+
+def matchById(matchId):
+    webhook = ("https://na.api.pvp.net/api/lol/na/v2.2/match/" + str(matchId) + 
+                "?api_key=e63ca19d-7ce7-4fc7-9b85-35759aab7ec6")
+    response = urllib2.urlopen(webhook)
+    json_response = json.loads(response.read())
+    client = MongoClient()
+    db = client.test_database
+    print(json_response)
 
 
 
 if __name__ == '__main__':
-    main()
+    matchById(1721458584)
