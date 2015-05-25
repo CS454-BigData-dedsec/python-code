@@ -10,103 +10,100 @@ import pprint
 import datetime
 
 def matchData(matchId):
-'''
-This function inserts a parsed (hence skinny) "match" document into 
-"SkinnyMatchData" collection using "matchId" parameter.
+	'''
+	This function inserts a parsed (hence skinny) "match" document into 
+	"SkinnyMatchData" collection using "matchId" parameter.
 
-Queries using "match-v2.2" webhook located at 
-https://developer.riotgames.com/api/methods#!/967
-'''
-    #check database
-    client = pymongo.MongoClient()
-    db = client.LeagueOfLegends
-    cursor = db.SkinnyMatchData.find({"matchId": matchId })
-    if cursor.count() > 0:
-    	print("match found, returning without inserting")
-    	return
-    
-    #api call
-    webhook = ("https://na.api.pvp.net/api/lol/na/v2.2/match/" + str(matchId) + 
-    			"?api_key=e63ca19d-7ce7-4fc7-9b85-35759aab7ec6")
-    response = urllib2.urlopen(webhook)
-    response = json.loads(response.read())
-    
-    #response parsing
-    match = { 	"mapId": response["mapId"],
-    			"matchCreation": response["matchCreation"],
-    			"matchDuration": response["matchDuration"],
-    			"matchId": response["matchId"],
-    			"matchMode": response["matchMode"],
-    			"matchType": response["matchType"],
-    			"matchVersion": response["matchVersion"],
-    			"platformId": response["platformId"],
-    			"queueType": response["queueType"],
-    			"region": response["region"],
-    			"season": response["season"]
-    }
+	Queries using "match-v2.2" webhook located at 
+	https://developer.riotgames.com/api/methods#!/967
+	'''
+	#check database
+	client = pymongo.MongoClient()
+	db = client.LeagueOfLegends
+	cursor = db.SkinnyMatchData.find({"matchId": matchId })
+	if cursor.count() > 0:
+		print("match found, returning without inserting")
+		return
 
-    #teams
-    winTeamId = 0
-    bans = []
-    for team in response["teams"]:
-    	if team["winner"] == True:
-    		winTeamId = team["teamId"]
-    	for ban in team["bans"]:
-    		bans.append(ban["championId"])
-    match["bans"] = bans
+	#api call
+	webhook = ("https://na.api.pvp.net/api/lol/na/v2.2/match/" + str(matchId) + 
+				"?api_key=e63ca19d-7ce7-4fc7-9b85-35759aab7ec6")
+	response = urllib2.urlopen(webhook)
+	response = json.loads(response.read())
 
-    #participants
-    participants = []
-    for p in response["participants"]:
-    	current = {	"championId": p["championId"],
-    				"highestAchievedSeasonTier": p["highestAchievedSeasonTier"],
-    				"masteries": p["masteries"],
-    				"runes": p["runes"],
-    				"spells": [ p["spell1Id"], p["spell2Id"] ]
-    	}
+	#response parsing
+	match = { 	"mapId": response["mapId"],
+				"matchCreation": response["matchCreation"],
+				"matchDuration": response["matchDuration"],
+				"matchId": response["matchId"],
+				"matchMode": response["matchMode"],
+				"matchType": response["matchType"],
+				"matchVersion": response["matchVersion"],
+				"platformId": response["platformId"],
+				"queueType": response["queueType"],
+				"region": response["region"],
+				"season": response["season"]
+	}
 
-    	#did participant win?
-    	if p["teamId"] == winTeamId:
-    		win = True
-    	elif p["teamId"] != winTeamId:
-    		win = False
-    	current["win"] = win
+	#teams
+	winTeamId = 0
+	bans = []
+	for team in response["teams"]:
+		if team["winner"] == True:
+			winTeamId = team["teamId"]
+		for ban in team["bans"]:
+			bans.append(ban["championId"])
+	match["bans"] = bans
 
-    	#ParticipantStats
-    	stats = p["stats"]
-    	if stats["firstBloodAssist"] or stats["firstBloodKill"] is True:
-    		firstBlood = True
-    	else:
-    		firstBlood = False
-    	current["firstBlood"] = firstBlood
+	#participants
+	participants = []
+	for p in response["participants"]:
+		current = {	"championId": p["championId"],
+					"highestAchievedSeasonTier": p["highestAchievedSeasonTier"],
+					"masteries": p["masteries"],
+					"runes": p["runes"],
+					"spells": [ p["spell1Id"], p["spell2Id"] ]
+		}
 
-    	if stats["firstTowerAssist"] or stats["firstTowerKill"] is True:
-    		firstTower = True
-    	else:
-    		firstTower = False
-    	current["firstTower"] = firstTower
+		#did participant win?
+		if p["teamId"] == winTeamId:
+			win = True
+		elif p["teamId"] != winTeamId:
+			win = False
+		current["win"] = win
 
-    	items = []
-    	for x in range(7):
-    		items.append(stats["item" + str(x)])
-    	current["items"] = items
+		#ParticipantStats
+		stats = p["stats"]
+		if stats["firstBloodAssist"] or stats["firstBloodKill"] is True:
+			firstBlood = True
+		else:
+			firstBlood = False
+		current["firstBlood"] = firstBlood
 
-    	#ParticipantTimeLine
-    	current["lane"] = p["timeline"]["lane"]
-    	current["role"] = p["timeline"]["role"]
+		if stats["firstTowerAssist"] or stats["firstTowerKill"] is True:
+			firstTower = True
+		else:
+			firstTower = False
+		current["firstTower"] = firstTower
 
-    	participants.append(current)
-    match["participants"] = participants
+		items = []
+		for x in range(7):
+			items.append(stats["item" + str(x)])
+		current["items"] = items
 
-    #insert into database
-    db.SkinnyMatchData.insert(match)
-    
-    #debug printing
-    # pp = pprint.PrettyPrinter()
-    # pp.pprint(match)
-    print('SkinnyMatchData document entered!')
+		#ParticipantTimeLine
+		current["lane"] = p["timeline"]["lane"]
+		current["role"] = p["timeline"]["role"]
 
-def calculateGlobalStats():
+		participants.append(current)
+	match["participants"] = participants
+
+	#insert into database
+	db.SkinnyMatchData.insert(match)
+
+	print('SkinnyMatchData document entered!')
+
+def globalStats():
 	'''
 	This function inserts a document "stat" into "GlobalStats" collection based 
 	upon "SkinnyMatchData" collection.  
@@ -114,9 +111,12 @@ def calculateGlobalStats():
 	Each "stat" document has a datetime.now() located in stat["currentTime"]
 
 	'''
+	#database
 	client = pymongo.MongoClient()
 	db = client.LeagueOfLegends
 	cursor = db.SkinnyMatchData.find()
+	
+	#parsing
 	stat = {	"matchCount": 0,
 				"participants": 0,
 				"champions": 0,
@@ -134,7 +134,6 @@ def calculateGlobalStats():
 				},
 				"currentTime": datetime.datetime.now()
 	}
-
 	for match in cursor:
 		stat["matchCount"] += 1
 		for ban in match["bans"]:
@@ -166,7 +165,46 @@ def calculateGlobalStats():
 	db.GlobalStats.insert(stat)
 	print("Global stats updated")
 
+def championStats():
+	'''
+	This function inserts a "champion_stat" document into "ChampionStat" 
+	collection
+
+	'''
+	#database
+	client = pymongo.MongoClient()
+	db = client.LeagueOfLegends
+	matchData = db.SkinnyMatchData.find()
+	championData = db.ChampionStats.find()
+
+	#api call
+	webhook = ("https://global.api.pvp.net/api/lol/static-data/na/v1.2/" +
+				"champion?champData=image&api_key=e63ca19d-7ce7-4fc7-9b85-" +
+				"35759aab7ec6")
+	response = urllib2.urlopen(webhook)
+	response = json.loads(response.read())
+	image_url = "http://ddragon.leagueoflegends.com/cdn/4.2.6/img/champion/"
+
+	#parsing
+	for champ in response["data"]:
+		champ = response["data"][str(champ)]
+		champion_stat = {	"name": champ["name"],
+					"id": champ["id"],
+					"title": champ["title"],
+					"image": image_url + champ["image"]["full"],
+					"times_played": 0,
+					
+		}
+
+
+
+	#debug printing
+	pp = pprint.PrettyPrinter()
+	pp.pprint(champ)
+
+
+
 if __name__ == "__main__":
-	calculateGlobalStats()
-	matchData(1721458584)
-    
+	#matchData(1721458584)
+	#globalStats()
+	championStats()
