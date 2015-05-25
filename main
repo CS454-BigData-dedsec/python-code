@@ -1,0 +1,46 @@
+import pylab as pl
+import numpy as np
+import cost_function as cf
+
+#ill upload this file 
+filename = 'auto-mpg.data'
+
+#Load and prepare data
+X = np.loadtxt(filename, usecols=(4,))
+Y = np.loadtxt(filename, usecols=(0,))
+
+# Added feature scaling to keep learning rate and number of iterations reasonable. 
+X_norm = (X - np.mean(X))/np.std(X)
+Theta = np.zeros((2,1))
+
+print "Cost before gradient descent: " , cf.calculate_cost(X_norm, Y, Theta)
+print "Thetas: " , cf.gradient_descent(X_norm, Y, Theta, .01, 1000)
+print "Cost after gradient descent: ", cf.calculate_cost(X_norm, Y, Theta)
+
+
+# code below this line will plot the data and draw our prediction line along the plots
+# this doesnt work for me when i run it on Liclipse but it does when i use the IDE anaconda
+# ill post a screen shot if you guys cant see it
+
+#plot data
+pl.xlabel("Weight of Car")
+pl.ylabel("MPG")
+
+b = Theta[0]
+m = Theta[1]
+
+if (b != 0 and m != 0):
+    
+    #b and m are calculated for a scaled X, need to reconvert to graph and predict
+    b -= np.mean(X)/np.std(X) * m
+    m = m/np.std(X)
+
+    # make a line to plot
+    yp = pl.polyval([m,b],X)
+
+    # plot line and scatter diagram
+    pl.plot(X, yp)
+
+# plot scatter diagram anyway
+pl.scatter(X, Y)
+pl.show()
