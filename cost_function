@@ -1,0 +1,46 @@
+# Here as an example of the machine learning cost function, gradient_descent, and calculate prediction
+import numpy as np
+
+# cost function tells us how close our prediction is to the right answer, the lower the cost, the more accurate it is
+def calculate_cost(X, Y, Theta):
+    cost = 0.0 #You must return the correct value for cost
+    
+    #add y-intercept term with a column of ones
+    dimX = X.shape #get dimensions of X as a tuple (rows, columns) 
+    N = dimX[0] #get number of rows
+    X = np.c_[np.ones(N), X]#add column of ones at beginning to accommodate theta0
+    
+ 
+    hypothesis = calculate_prediction(X,Theta)
+    prediction = (hypothesis - Y) ** 2 
+    cost = (1.0/(2*N)) * prediction.sum()
+    
+    return cost
+   
+   
+   
+################################################################################################################################
+ 
+# this function 'trains' our thetas, once are thetas are adjusted, we then feed it features and itll give us a prediction
+def gradient_descent(X, Y, Theta, alpha, num_iters):
+    N = len(X) #get number of rows
+    #T = len(Theta)
+    X = np.c_[np.ones(N), X]
+    for i in range(num_iters):
+        
+        prediction = calculate_prediction(X,Theta)
+    
+        x1 = (prediction - Y)*X[:,0]
+        x2 = (prediction - Y)*X[:,1]
+        Theta[0][0] = Theta[0][0] - alpha*(1.0/N)*x1.sum()
+        Theta[1][0] = Theta[1][0] - alpha*(1.0/N)*x2.sum()
+        
+###############################################################################################################################       
+    return Theta
+
+  # this function gives us our prediction
+def calculate_prediction(x_val, Theta):   
+    y = x_val.dot(Theta).flatten()
+    
+###############################################################################################################################
+    return y
