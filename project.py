@@ -7,16 +7,20 @@ import re
 import time
 
 def main():
+<<<<<<< Updated upstream
     response = urllib2.urlopen('https://na.api.pvp.net/observer-mode/rest/' +
                 'featured?api_key=e63ca19d-7ce7-4fc7-9b85-35759aab7ec6')
     string = response.read()        #this is a string
     gameList = json.loads(string)   #this is a json object
+=======
+>>>>>>> Stashed changes
     from pymongo import MongoClient
     client = MongoClient()
     db = client.test_database
     
     starting = '35241849'
     
+<<<<<<< Updated upstream
     #print(string)
     print(gameList)     #the u' annotation is unicode.  you can ignore it
     newMatches = matches(starting)
@@ -25,6 +29,10 @@ def main():
     #we can use to answer our question, it is stored as a dictionary
     for i in gameList['gameList']:
         print(i)              
+=======
+    newMatches = matches(starting)
+    
+>>>>>>> Stashed changes
     print("this is the list of matches for this guy", starting)
     print(newMatches)
     
@@ -47,11 +55,15 @@ def userFromMatches(matches,db):
                     point = "https://na.api.pvp.net/api/lol/na/v2.2/match/"+str(matches[g])+"?api_key=8fc63904-e5cd-4b76-a555-4729dac804b4"
                     response = urllib2.urlopen(point)
                     string = response.read()
+<<<<<<< Updated upstream
                 if err.code == 429:
                     time.sleep(11)
                     point = "https://na.api.pvp.net/api/lol/na/v2.2/match/"+str(matches[g])+"?api_key=8fc63904-e5cd-4b76-a555-4729dac804b4"
                     response = urllib2.urlopen(point)
                     string = response.read()
+=======
+        
+>>>>>>> Stashed changes
         
             gameList = json.loads(string)
             
@@ -76,11 +88,17 @@ def userFromMatches(matches,db):
                 #--it should show posts in the list
                 #db.posts.find()      --this will show you every document you have in posts
                 
+<<<<<<< Updated upstream
                 #we can look up specific queries like this:
                 #db.posts.find({"Win": true})    --to find where the player won
 
 
     return list
+=======
+
+
+                    return list
+>>>>>>> Stashed changes
 
 
 def matches(user): #looks up by user for matches
@@ -99,7 +117,11 @@ def matches(user): #looks up by user for matches
                     point = "https://na.api.pvp.net/api/lol/na/v2.2/matchhistory/"+str(user)+"?&beginIndex="+str(g*15)+"&endIndex=100&api_key=8fc63904-e5cd-4b76-a555-4729dac804b4"
                     response = urllib2.urlopen(point)
                     string = response.read()
+<<<<<<< Updated upstream
                 
+=======
+        
+>>>>>>> Stashed changes
         
             gameList = json.loads(string)
             c = string.count('matchId')
@@ -112,7 +134,11 @@ def matches(user): #looks up by user for matches
                 print( "Win = ", gameList["matches"][i]["participants"][0]["stats"]["winner"], "\n" )
                 list.append(gameList["matches"][i]["matchId"])
 
+<<<<<<< Updated upstream
     return list
+=======
+                    return list
+>>>>>>> Stashed changes
 
 
 
