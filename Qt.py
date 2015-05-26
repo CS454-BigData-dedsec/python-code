@@ -91,30 +91,19 @@ def matches(user,client): #looks up by user for matches
     for g in range(counter, 100):
         if(trigger):
             try: 
-                point = "https://na.api.pvp.net/api/lol/na/v2.2/matchhistory/"+str(user)+"?&beginIndex="+str(g*15)+"&endIndex=100&api_key=8fc63904-e5cd-4b76-a555-4729dac804b4"
+                point = "https://na.api.pvp.net/api/lol/na/v2.2/matchhistory/"+str(user)+"?&beginIndex="+str(g*15)+"&endIndex=100&api_key=e63ca19d-7ce7-4fc7-9b85-35759aab7ec6"
                 response = urllib2.urlopen(point)
                 string = response.read()
             except urllib2.HTTPError as err:
                 print (err.code)
-                if err.code ==503:
+                if err.code <600:
                     parseIt = False
-                if err.code ==500:
-                    parseIt = False
-                if err.code ==401:
-                    parseIt = False
-                    print user
                 if err.code ==400:
-                    print user
-                    parseIt = False
                     trigger = False
-                if err.code ==404:
-                    parseIt = False
-                    print user
                 if err.code == 429:
                     time.sleep(11)
                     matches(user,client)
                     parseIt = False        
-
             if(parseIt):        
                 gameList = json.loads(string) 
                 c = string.count('matchId')
@@ -143,18 +132,15 @@ def matches1(user,client): #looks up by user for matches
 
         if(trigger):
             try: 
-                point = "https://na.api.pvp.net/api/lol/na/v2.2/matchhistory/"+str(user)+"?&beginIndex="+str(g*15)+"&endIndex=100&api_key=8fc63904-e5cd-4b76-a555-4729dac804b4"
+                point = "https://na.api.pvp.net/api/lol/na/v2.2/matchhistory/"+str(user)+"?&beginIndex="+str(g*15)+"&endIndex=100&api_key=e63ca19d-7ce7-4fc7-9b85-35759aab7ec6"
                 response = urllib2.urlopen(point)
                 string = response.read()
             except urllib2.HTTPError as err:
                 print (err.code)
-                if err.code ==503:
-                    trigger = False
-                if err.code ==500:
+                if err.code <600:
                     parseIt = False
                 if err.code ==400:
                     trigger = False
-                    parseIt = False
                 if err.code == 429:
                     time.sleep(11)
                     parseIt = False
@@ -172,14 +158,14 @@ def matches1(user,client): #looks up by user for matches
 def getInfoMatches(matchId,client):
     trigger = True
     try: 
-        point = "https://na.api.pvp.net/api/lol/na/v2.2/match/"+str(matchId)+"?api_key=8fc63904-e5cd-4b76-a555-4729dac804b4"
+        point = "https://na.api.pvp.net/api/lol/na/v2.2/match/"+str(matchId)+"?api_key=e63ca19d-7ce7-4fc7-9b85-35759aab7ec6"
         response = urllib2.urlopen(point)
         string = response.read()
     except urllib2.HTTPError as err:
         print (err.code)
-        if err.code == 503:
+        if err.code <600:
             trigger = False
-        if err.code == 500:
+        if err.code ==400:
             trigger = False
         if err.code == 429:
             time.sleep(11)
@@ -188,13 +174,21 @@ def getInfoMatches(matchId,client):
     if trigger:    
         gameList = json.loads(string) 
         c = string.count('totalDamageDealtToChampions')
-    
+        saveChampInfo(gameList,client,c,matchId)
         for i in range(0,c):
 
             saveSummonerId(gameList['participantIdentities'][i]['player']['summonerId'],client)
-    
-        saveMatchInfo(gameList,client)
+        # this saves the match info but im going to comment it out
+        #saveMatchInfo(gameList,client)
+        #this down here just saves the matchId
+        saveMatchId(matchId,client)
 
+#this one saves the id only>>>>>>>>>>>>>>>>>>>>>>
+def saveMatchId(matchId,client):
+    print "new MatchId added"
+    db = client.MatchIdList
+    data = { "_id" : matchId }
+    db.posts.insert(data)
 
 def saveSummonerId(userId,client):
 
@@ -268,6 +262,162 @@ def findMatch(client):# pulls the next one
     theOne = db.posts.find_one({"Visited" : False})
 
     return theOne["_id"]
+
+def saveChampInfo(gameData,client,entries,matchId):
+    winners = []
+    lossers = []
+
+    for i in range(0,entries):
+
+        if gameData["participants"][i]["stats"]["winner"]:
+            winners.append(entries)
+        else:
+            lossers.append(entries)
+
+        summoner = gameData["participants"][i]["championId"]
+
+        win = gameData["participants"][i]["stats"]["winner"]
+
+        items = []
+        items.append(gameData["participants"][i]["stats"]["item0"])
+        items.append(gameData["participants"][i]["stats"]["item1"])
+        items.append(gameData["participants"][i]["stats"]["item2"])
+        items.append(gameData["participants"][i]["stats"]["item3"])
+        items.append(gameData["participants"][i]["stats"]["item4"])
+        items.append(gameData["participants"][i]["stats"]["item5"])
+        items.append(gameData["participants"][i]["stats"]["item6"])
+        
+        # this is just in game data that I added later
+        kills = gameData["participants"][i]["stats"]["kills"]
+        goldE = gameData["participants"][i]["stats"]["goldEarned"]
+        deaths = gameData["participants"][i]["stats"]["deaths"]
+        goldS = gameData["participants"][i]["stats"]["goldSpent"]
+        level = gameData["participants"][i]["stats"]["champLevel"]
+
+
+        addtoData(summoner,matchId,win,kills,goldE,goldS,deaths,level,client)
+
+
+        spell1 = gameData['participants'][i]['spell1Id']
+        spell2 = gameData['participants'][i]['spell2Id']
+
+        lane = gameData['participants'][i]['timeline']['lane']
+        role = gameData['participants'][i]['timeline']['role']
+        
+        databaseAdd(summoner,win,items,spell1,spell2,level,lane,role,client,matchId)
+
+def addtoData(summoner,matchId,win,kills,goldE,goldS,deaths,level,client):
+    
+    if win:
+        db = client.ChampionGameStatsW
+        entry = {"summoner": summoner,"matchId":matchId,"kills":kills,"goldE":goldE,"goldS":goldS,"death":deaths,"level":level}
+        db.posts.insert(entry)
+    else:
+        db = client.ChampionGameStatsL
+        entry = {"summoner": summoner,"matchId":matchId,"kills":kills,"goldE":goldE,"goldS":goldS,"death":deaths,"level":level}
+        db.posts.insert(entry)
+
+
+def databaseAdd(summoner,win,items,spell1,spell2,level,lane,role,client,matchId):
+    if doesChampExist(summoner,client):
+        updateChampWin(summoner,win,client)
+        createThisChamp(summoner,win,items,spell1,spell2,level,lane,role,client,matchId)
+
+    else:
+        winUpdate(summoner,win,client)
+        createThisChamp(summoner,win,items,spell1,spell2,level,lane,role,client,matchId)
+
+def updateChampWin(summoner,win,client):
+    db = client.ChampionWin
+
+    theOne = db.posts.find_one({"_id" : summoner})
+    winData = theOne['wins']
+    lostData = theOne['lost']
+
+    if win:
+        db.posts.update({"_id" : summoner}, {"wins": winData+1,"lost": lostData})
+    else:
+        db.posts.update({"_id" : summoner}, {"lost": lostData+1,"wins": winData})
+    
+
+def updateChampItems(summoner, items,client):
+    itemsList = {}
+    for i in range(0,len(items)):
+        itemsList[str(items[i])] = 1
+    
+    db = client.ChampionData
+
+    theOne = db.posts.find_one({"_id" : summoner})
+
+    print theOne["items"][""]
+
+    #db.posts.update({"_id" : summoner}, {"wins": winData+win})
+def winUpdate(summoner,win,client):
+    db = client.ChampionWin
+
+    wins = 0
+    lost = 0
+    if win:
+        wins = 1
+    else:
+        lost = 1
+
+    entry = {"_id": summoner, "wins" : wins, "lost" : lost}
+    db.posts.insert(entry)
+
+
+def createThisChamp(summoner,win,items,spell1,spell2,level,lane,role,client,matchId):
+    if win:
+
+        db = client.ChampionItemsW
+        for i in range(0,len(items)):
+            entry = {"summoner": summoner, "items":items[i],"matchId":matchId}
+            db.posts.insert(entry)
+
+        db = client.ChampionSpellsW
+        entry = {"summoner": summoner,"spell":spell1,"matchId":matchId}
+        db.posts.insert(entry)
+        entry = {"summoner": summoner,"spell":spell2,"matchId":matchId}
+        db.posts.insert(entry)
+
+
+        db = client.ChampionLaneW
+        entry = {"summoner": summoner,"lane":lane,"role":role,"matchId":matchId}
+        db.posts.insert(entry)
+    else:
+
+        db = client.ChampionItemsL
+        for i in range(0,len(items)):
+            entry = {"summoner": summoner, "item":items[i],"matchId":matchId}
+            db.posts.insert(entry)
+
+        db = client.ChampionSpellsL
+        entry = {"summoner": summoner,"spell":spell1,"matchId":matchId}
+        db.posts.insert(entry)
+        entry = {"summoner": summoner,"spell":spell2,"matchId":matchId}
+        db.posts.insert(entry)
+
+
+        db = client.ChampionLaneL
+        entry = {"summoner": summoner,"lane":lane,"role":role,"matchId":matchId}
+        db.posts.insert(entry)
+
+   
+def submitEntryToDataBase(entry,client):
+    db = client.ChampionData
+    db.posts.insert(entry)
+
+def doesChampExist(summoner,client):
+    db = client.ChampionWin
+    
+    theOne = db.posts.find_one({"_id" : summoner})
+
+    if theOne == None:
+
+        return False
+
+    return True
+
 
 
 if __name__ == '__main__':
