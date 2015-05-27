@@ -9,8 +9,6 @@ import json
 import pprint
 import datetime
 
-
-
 def matchData(matchId):
 	'''
 	This function inserts a parsed (hence skinny) "match" document into 
@@ -117,7 +115,8 @@ def globalStats():
 	client = pymongo.MongoClient()
 	db = client.LeagueOfLegends
 	cursor = db.SkinnyMatchData.find()
-	
+	db.drop_collection("GlobalStats")
+
 	#parsing
 	stat = {	"matchCount": 0,
 				"participants": 0,
@@ -134,7 +133,7 @@ def globalStats():
 					"silver": 0,
 					"bronze": 0
 				},
-				"currentTime": datetime.datetime.now()
+				"_id": datetime.datetime.now()
 	}
 	for match in cursor:
 		stat["matchCount"] += 1
@@ -165,7 +164,7 @@ def globalStats():
 				elif tier == "BRONZE":
 					stat["tiers"]["bronze"] += 1
 	db.GlobalStats.insert(stat)
-	print("Global stats updated")
+	print("Global stats dropped and recalculated")
 
 def staticData():
     #api call
@@ -196,11 +195,7 @@ def staticData():
                         "spells": []
         }
         result = db.ChampionStats.insert_one(champ_stat)
-
-    print("ChampionStats cleared and updated with empty champs.")
-    # #debug printing
-    # pp = pprint.PrettyPrinter()
-    # pp.pprint(container)
+    print("ChampionStats dropped and updated with empty champs.")
 
 def fillChampStats():
 	'''
@@ -325,7 +320,7 @@ def pushLoss(collection, champion, adversary):
 
 
 if __name__ == "__main__":
-	#matchData(1721458584)
-	#globalStats()
+	matchData(1721458584)
+	globalStats()
 	staticData()
 	fillChampStats()
