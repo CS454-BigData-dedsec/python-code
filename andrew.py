@@ -9,6 +9,8 @@ import json
 import pprint
 import datetime
 
+
+
 def matchData(matchId):
 	'''
 	This function inserts a parsed (hence skinny) "match" document into 
@@ -185,40 +187,145 @@ def staticData():
                         "_id": champ["id"],
                         "title": champ["title"],
                         "image": image_url + champ["image"]["full"],
-                        "firstBlood": [],
+                        "firstBlood": 0,
                         "firstTower": [],
                         "win": [],
                         "loss": [],
-                        "highestAchievedSeasonTier": []
+                        "highestAchievedSeasonTier": [],
+                        "items": [],
+                        "spells": []
         }
         result = db.ChampionStats.insert_one(champ_stat)
 
-    print("ChampionStats updated with empty champs.")
+    print("ChampionStats cleared and updated with empty champs.")
     # #debug printing
     # pp = pprint.PrettyPrinter()
     # pp.pprint(container)
 
 def fillChampStats():
-    '''
-    '''
-    #database
-    client = pymongo.MongoClient()
-    db = client.LeagueOfLegends
-    matches = db.SkinnyMatchData.find()
+	'''
+	'''
+	#database
+	client = pymongo.MongoClient()
+	db = client.LeagueOfLegends
+	matches = db.SkinnyMatchData.find()
+	stats = db.ChampionStats.find()
+
+
+	pp = pprint.PrettyPrinter()
+	for match in matches:
+		container = []
+		for p in match["participants"]:
+			# losers
+			if(p["win"] is False and p["lane"] == "BOTTOM" and p["role"] == "DUO_SUPPORT"):
+				bot_support_loser = p
+			if(p["win"] is False and p["lane"] == "BOTTOM" and p["role"] == "DUO_CARRY"):
+				bot_carry_loser = p
+			if(p["win"] is False and p["lane"] == "TOP"):
+				top_loser = p
+			if(p["win"] is False and p["lane"] == "MIDDLE"):
+				mid_loser = p
+			if(p["win"] is False and p["lane"] == "JUNGLE"):
+				jungle_loser = p
+			# winners 
+			if(p["win"] is True and p["lane"] == "BOTTOM" and p["role"] == "DUO_SUPPORT"):
+				bot_support_winner = p
+			if(p["win"] is True and p["lane"] == "BOTTOM" and p["role"] == "DUO_CARRY"):
+				bot_carry_winner = p
+			if(p["win"] is True and p["lane"] == "TOP"):
+				top_winner = p
+			if(p["win"] is True and p["lane"] == "MIDDLE"):
+				mid_winner = p
+			if(p["win"] is True and p["lane"] == "JUNGLE"):
+				jungle_winner = p
+		container.append(bot_support_loser)
+		container.append(bot_carry_loser)
+		container.append(mid_loser)
+		container.append(top_loser)
+		container.append(jungle_loser)
+		container.append(bot_support_winner)
+		container.append(bot_carry_winner)
+		container.append(mid_winner)
+		container.append(top_winner)
+		container.append(jungle_winner)
+		
+		# first bloods, highestAchievedSeasonTier, items, spells
+		for c in container:
+			if c["firstBlood"] is True:
+				incrementFirstBlood(db.ChampionStats, c)
+			pushSeasonTier(db.ChampionStats, c)
+			pushItems(db.ChampionStats, c)
+			pushSpells(db.ChampionStats, c)
+
+		# first towers
+		if bot_support_loser["firstTower"] is True:
+			pushFirstTower(db.ChampionStats, bot_support_loser, bot_support_winner)
+		if bot_carry_loser["firstTower"] is True:
+			pushFirstTower(db.ChampionStats, bot_carry_loser, bot_carry_winner)
+		if mid_loser["firstTower"] is True:
+			pushFirstTower(db.ChampionStats, mid_loser, mid_winner)
+		if top_loser["firstTower"] is True:
+			pushFirstTower(db.ChampionStats, top_loser, top_winner)
+		if jungle_loser["firstTower"] is True:
+			pushFirstTower(db.ChampionStats, jungle_loser, jungle_winner)
+		if bot_support_winner["firstTower"] is True:
+			pushFirstTower(db.ChampionStats, bot_support_winner, bot_support_loser)
+		if bot_carry_winner["firstTower"] is True:
+			pushFirstTower(db.ChampionStats, bot_carry_winner, bot_carry_loser)
+		if mid_winner["firstTower"] is True:
+			pushFirstTower(db.ChampionStats, mid_winner, mid_loser)
+		if top_winner["firstTower"] is True:
+			pushFirstTower(db.ChampionStats, top_winner, top_loser)
+		if jungle_winner["firstTower"] is True:
+			pushFirstTower(db.ChampionStats, jungle_winner, jungle_loser)
+
+		#wins, losses
+		pushWin(db.ChampionStats, bot_support_winner, bot_support_loser)
+		pushLoss(db.ChampionStats, bot_support_loser, bot_support_winner)
+		pushWin(db.ChampionStats, bot_carry_winner, bot_carry_loser)
+		pushLoss(db.ChampionStats, bot_carry_loser, bot_carry_winner)
+		pushWin(db.ChampionStats, mid_winner, mid_loser)
+		pushLoss(db.ChampionStats, mid_loser, mid_winner)
+		pushWin(db.ChampionStats, top_winner, top_loser)
+		pushLoss(db.ChampionStats, top_loser, top_winner)
+		pushWin(db.ChampionStats, jungle_winner, jungle_loser)
+		pushLoss(db.ChampionStats, jungle_loser, jungle_winner)
+		print("Stats from one match updated")
 
 
 
-    pp = pprint.PrettyPrinter()
-    for match in matches:
-        for participant in match["participants"]:
-            andrew
+def incrementFirstBlood(collection, champion):
+	collection.update_one({"_id": champion["championId"]},
+		{"$inc": {"firstBlood": 1}})    
+
+def pushFirstTower(collection, champion, adversary):
+	collection.update_one({"_id": champion["championId"]},
+		{"$push": {"firstTower": adversary["championId"]}})
+
+def pushSeasonTier(collection, champion):
+	collection.update_one({"_id": champion["championId"]},
+		{"$push": {"highestAchievedSeasonTier": champion["highestAchievedSeasonTier"]}})
+
+def pushItems(collection, champion):
+	collection.update_one({"_id": champion["championId"]},
+		{"$push": {"items": {"$each": champion["items"]}}})
+
+def pushSpells(collection, champion):
+	collection.update_one({"_id": champion["championId"]},
+		{"$push": {"spells": {"$each": champion["spells"]}}})
+
+def pushWin(collection, champion, adversary):
+	collection.update_one({"_id": champion["championId"]},
+		{"$push": {"win": adversary["championId"]}})
+
+def pushLoss(collection, champion, adversary):
+	collection.update_one({"_id": champion["championId"]},
+		{"$push": {"loss": adversary["championId"]}})
 
 
-
-    
 
 if __name__ == "__main__":
 	#matchData(1721458584)
 	#globalStats()
-	#staticData()
-    fillChampStats()
+	staticData()
+	fillChampStats()
