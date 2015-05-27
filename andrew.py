@@ -9,6 +9,15 @@ import json
 import pprint
 import datetime
 
+uri = "108.225.12.135"
+
+def matchDataDriver():
+	client = pymongo.MongoClient(uri)
+	db = client.MatchIdList
+	cursor = db.posts.find()
+	for doc in cursor:
+		matchData(doc["_id"])
+
 def matchData(matchId):
 	'''
 	This function inserts a parsed (hence skinny) "match" document into 
@@ -18,7 +27,7 @@ def matchData(matchId):
 	https://developer.riotgames.com/api/methods#!/967
 	'''
 	#check database
-	client = pymongo.MongoClient()
+	client = pymongo.MongoClient(uri)
 	db = client.LeagueOfLegends
 	cursor = db.SkinnyMatchData.find({"_id": matchId })
 	if cursor.count() > 0:
@@ -112,7 +121,7 @@ def globalStats():
 
 	'''
 	#database
-	client = pymongo.MongoClient()
+	client = pymongo.MongoClient(uri)
 	db = client.LeagueOfLegends
 	cursor = db.SkinnyMatchData.find()
 	db.drop_collection("GlobalStats")
@@ -167,41 +176,41 @@ def globalStats():
 	print("Global stats dropped and recalculated")
 
 def staticData():
-    #api call
-    webhook = ("https://global.api.pvp.net/api/lol/static-data/na/v1.2/" +
-                "champion?champData=image&api_key=e63ca19d-7ce7-4fc7-9b85-" +
-                "35759aab7ec6")
-    response = urllib2.urlopen(webhook)
-    response = json.loads(response.read())
-    image_url = "http://ddragon.leagueoflegends.com/cdn/4.2.6/img/champion/"
+	#api call
+	webhook = ("https://global.api.pvp.net/api/lol/static-data/na/v1.2/" +
+				"champion?champData=image&api_key=e63ca19d-7ce7-4fc7-9b85-" +
+				"35759aab7ec6")
+	response = urllib2.urlopen(webhook)
+	response = json.loads(response.read())
+	image_url = "http://ddragon.leagueoflegends.com/cdn/4.2.6/img/champion/"
 
-    #database insert
-    client = pymongo.MongoClient()
-    db = client.LeagueOfLegends
-    db.drop_collection("ChampionStats")
+	#database insert
+	client = pymongo.MongoClient(uri)
+	db = client.LeagueOfLegends
+	db.drop_collection("ChampionStats")
 
-    for champ in response["data"]:
-        champ = response["data"][str(champ)]
-        champ_stat = {  "name": champ["name"],
-                        "_id": champ["id"],
-                        "title": champ["title"],
-                        "image": image_url + champ["image"]["full"],
-                        "firstBlood": 0,
-                        "firstTower": [],
-                        "win": [],
-                        "loss": [],
-                        "highestAchievedSeasonTier": [],
-                        "items": [],
-                        "spells": []
-        }
-        result = db.ChampionStats.insert_one(champ_stat)
-    print("ChampionStats dropped and updated with empty champs.")
+	for champ in response["data"]:
+		champ = response["data"][str(champ)]
+		champ_stat = {	"name": champ["name"],
+						"_id": champ["id"],
+						"title": champ["title"],
+						"image": image_url + champ["image"]["full"],
+						"firstBlood": 0,
+						"firstTower": [],
+						"win": [],
+						"loss": [],
+						"highestAchievedSeasonTier": [],
+						"items": [],
+						"spells": []
+		}
+		result = db.ChampionStats.insert_one(champ_stat)
+	print("ChampionStats dropped and updated with empty champs.")
 
 def fillChampStats():
 	'''
 	'''
 	#database
-	client = pymongo.MongoClient()
+	client = pymongo.MongoClient(uri)
 	db = client.LeagueOfLegends
 	matches = db.SkinnyMatchData.find()
 	stats = db.ChampionStats.find()
@@ -320,7 +329,7 @@ def pushLoss(collection, champion, adversary):
 
 
 if __name__ == "__main__":
-	matchData(1721458584)
+	matchDataDriver()
 	globalStats()
 	staticData()
 	fillChampStats()
