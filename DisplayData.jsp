@@ -6,7 +6,7 @@
 <jsp:useBean id="cl" class="model.ChampionListBean" scope="page"/>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <head>
 <style>
 body {
@@ -111,9 +111,10 @@ table {
     -moz-box-shadow:0 1px 0 rgba(255,255,255,.8) inset;  
     box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;        
 }
+/* CODE FOR THE MENUE BELOW */
 #dolphincontainer { 
 	position:relative;
-	height:56px;
+	height:40px; /* HEIGHT OF THE BLUE BAR BELOW THE MENU */
 	color:#E0E0E0;
 	background:#143D55;
 	width:100%;
@@ -149,7 +150,7 @@ table {
 	float:left;
 	color:#EAF3F8;
 	text-decoration:none;
-	padding:0 0 0 20px;
+	padding:0 0 0 33px;
 	height:33px;
 }
 
@@ -174,11 +175,12 @@ table {
 	color:#fff;
 	background:#1D6893 url(dolphin_left-ON.gif) no-repeat top left;
 	line-height:275%;
+	
 }
 
 #dolphinnav ul li a.current span {
 	display:block;
-	padding:0 20px 0 0;
+	padding:5 20px 5 5;
 	width:auto;
 	background:#1D6893 url(dolphin_right-ON.gif) no-repeat top right;
 	height:33px;
@@ -195,13 +197,15 @@ table {
 <body background="background.jpg" bgproperties="fixed">
 <div id="dolphincontainer">
 <div id="dolphinnav">
+<form action="http://localhost:8080/leagueoflegends/PullData" method="get" >
  <ul>
   <li><a href="" title=""><span>Home</span></a></li>
   <li><a href="" title="" ><span>About Us</span></a></li>
-  <li><a href="" title=""><span>Champion Data</span></a></li>
-  <li><a href="" title=""><span>Match Info</span></a></li>
-  <li><a href="" title=""><span>The Meta</span></a></li>
+  <li><a href="http://localhost:8080/leagueoflegends/DisplayData.jsp"><span>Champion Data</span></a></li>
+  <li><span><input type="text"  name="champ"/></span></li>
+  <li><span><input type="submit" value="search"/></span></li>
  </ul>
+ </form>
 </div>
 </div>
 <c:if test="${fn:length(cl.champList) == 0 }" >
@@ -211,20 +215,24 @@ There are no Champions in the list!!!
 <c:if test="${fn:length(cl.champList) > 0 }" > 
 <table class="bordered">
 <tr>
-	<td><h3>Champ ID</h3></td>
-	<td><h3>Wins</h3></td>
-	<td><h3>Loses</h3></td>
-	<td><h3>Win Ratio</h3></td>
-	<td><h3>Loss Ratio</h3></td>
+	<td><h4>Image</h4></td>
+	<td><h4>Name</h4></td>
+	<td><h4>Games Played</h4></td>
+	<td><h4>Wins</h4></td>
+	<td><h4>Loses</h4></td>
+	<td><h4>Win Ratio</h4></td>
+	<td><h4>Loss Ratio</h4></td>
 </tr>
 
 <c:forEach items="${cl.champList}" var="champs">
 <tr>
-	<td><strong>${champs.championID}</strong></td>
+	<td><a href=""><img src="${champs.image}"></img></a></td>
+	<td><a href="">${champs.name}</a></td>
+	<td>${champs.numberOfGames }</td>
 	<td>${champs.wins}</td>
 	<td>${champs.loses}</td>
-	<td>${champs.winRatio}</td>
-	<td>${champs.lossRatio}</td>
+	<td><fmt:formatNumber type="number" maxFractionDigits="3" value="${champs.winRatio}"/></td>
+	<td><fmt:formatNumber type="number" maxFractionDigits="3" value="${champs.lossRatio}"/></td>
 </tr>
 </c:forEach>
 </table>
